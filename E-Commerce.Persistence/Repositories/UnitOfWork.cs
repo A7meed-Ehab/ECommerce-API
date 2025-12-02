@@ -3,35 +3,45 @@ using E_Commerce.Domain.Interfaces;
 using E_Commerce.Persistence.Data.DbContexts;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace E_Commerce.Persistence.Repositories
 {
-     public  class UnitOfWork : IUnitOfWork
+    public class UnitOfWork : IUnitOfWork
     {
         private readonly StoreDbContext _storeDbContext;
-        private readonly Dictionary<Type, Object> _repsitories;
+
+        // FIX 1: Initialize the dictionary
+        private readonly Dictionary<Type, object> _repositories = new();
 
         public UnitOfWork(StoreDbContext storeDbContext)
         {
-            this._storeDbContext = storeDbContext;
+            _storeDbContext = storeDbContext;
         }
-        public IGenericRepository<TEntity, TKey> GetRepository<TEntity, TKey>() where TEntity : BaseEntity<TKey>
+
+        public IGenericRepository<TEntity, TKey> GetRepository<TEntity, TKey>()
+            where TEntity : BaseEntity<TKey>
         {
-            var EntityType = typeof(TEntity);
-            if(_repsitories.TryGetValue(EntityType, out object? repository))
+            var entityType = typeof(TEntity);
+
+            // Check if already created
+            if (_repositories.TryGetValue(entityType, out var repository))
+            {
                 return (IGenericRepository<TEntity, TKey>)repository;
-            var newRepo = new GenericRepositories<TEntity, TKey>(_storeDbContext);
-            _repsitories[EntityType] = newRepo;
-            return newRepo;
+            }
 
+            // Create new repository
+            var newRepo = new GenericRepositories<TEntity, TKey>(_storeDbContext);
+
+            // FIX 2: Store it in dictionary
+            _repositories[entityType] = newRepo;
+
+            return newRepo;
         }
 
-        public async Task<int> SaveChangesAsync()
+        public Task<int> SaveChangesAsync()
         {
-         return await _storeDbContext.SaveChangesAsync();
+            return _storeDbContext.SaveChangesAsync();
         }
     }
 }
