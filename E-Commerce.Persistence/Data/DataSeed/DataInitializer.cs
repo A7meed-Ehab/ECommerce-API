@@ -21,27 +21,27 @@ namespace E_Commerce.Persistence.Data.DataSeed
         {
             this._dbContext = dbContext;
         }
-        public void Initialize()
+        public async Task InitializeAsync()
         {
             try
             {
-                var HasProducts = _dbContext.Products.Any();
-                var HasBrands = _dbContext.ProductBrands.Any();
-                var HasTypes = _dbContext.ProductTypes.Any();
-                if (HasProducts && HasBrands && HasTypes) return;
+                var HasProducts =await _dbContext.Products.AnyAsync();
+                var HasBrands =await _dbContext.ProductBrands.AnyAsync();
+                var HasTypes =await _dbContext.ProductTypes.AnyAsync();
+                if (HasProducts && HasBrands && HasTypes) return ;
                 if (!HasBrands)
                 {
-                    SeedDataFromJson<ProductBrand, int>("brands.json", _dbContext.ProductBrands);
+                 await SeedDataFromJsonAsync<ProductBrand, int>("brands.json", _dbContext.ProductBrands);
                 }
                 if (!HasTypes)
                 {
-                    SeedDataFromJson<ProductType, int>("types.json", _dbContext.ProductTypes);
+                 await SeedDataFromJsonAsync<ProductType, int>("types.json", _dbContext.ProductTypes);
 
                 }
                 _dbContext.SaveChanges();
                 if (!HasProducts)
                 {
-                    SeedDataFromJson<Product, int>("products.json", _dbContext.Products);
+                  await SeedDataFromJsonAsync<Product, int>("products.json", _dbContext.Products);
                 }
                 _dbContext.SaveChanges();
 
@@ -53,20 +53,20 @@ namespace E_Commerce.Persistence.Data.DataSeed
             }
 
         }
-        private void SeedDataFromJson<T,Tkey>(string fileName, DbSet<T>dbset)where T : BaseEntity<Tkey>
+        private async Task SeedDataFromJsonAsync<T,Tkey>(string fileName, DbSet<T>dbset)where T : BaseEntity<Tkey>
         {
             var FilePath = @"../E-Commerce.Persistence/Data/DataSeed/JSONFiles/" + fileName;
             if (!File.Exists(FilePath)) throw new FileNotFoundException($"File {fileName} Not Found");
             try
             {
              using  var dataStream = File.OpenRead(FilePath);
-             var data = JsonSerializer.Deserialize<List<T>>(dataStream, new JsonSerializerOptions
+             var data =await JsonSerializer.DeserializeAsync<List<T>>(dataStream, new JsonSerializerOptions
              {
                  PropertyNameCaseInsensitive = true
              });
                 if(data is not null)
                 {
-                    dbset.AddRange(data);
+                  await  dbset.AddRangeAsync(data);
                 }
             }
             catch(Exception ex)
