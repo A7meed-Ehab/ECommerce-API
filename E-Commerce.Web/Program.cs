@@ -1,5 +1,8 @@
 
+using E_Commerce.Domain.Interfaces;
+using E_Commerce.Persistence.Data.DataSeed;
 using E_Commerce.Persistence.Data.DbContexts;
+using E_Commerce.Web.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace E_Commerce.Web
@@ -18,9 +21,13 @@ namespace E_Commerce.Web
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
+            builder.Services.AddScoped<IDataInitializer,DataInitializer>(); 
             #endregion
             var app = builder.Build();
+            #region Data Seeding
+            app.MigrateDatabase().SeedDatabase();
 
+            #endregion
             #region Configure the HTTP request pipeline.
 
             app.UseSwagger();

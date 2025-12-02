@@ -9,16 +9,16 @@ namespace E_Commerce.Web.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        [HttpGet("GetById/{id:int}")]
-        public ActionResult<Product> GetById([FromRoute]int id)
-        {
+        //[HttpGet("ListAll")]
+        //public ActionResult<Product> GetAll()
+        //{
 
-            return new Product() { Id= id, Name="Rice"};
-        }
-        [HttpPost]
-        public ActionResult<Product> CreateProduct(Product product)
-        {
-            return product;
-        }
+        //    return ;
+        //}
+        //[HttpPost]
+        //public ActionResult<Product> CreateProduct(Product product)
+        //{
+        //    return product;
+        //}
     }
 }
