@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,14 +15,28 @@ namespace E_Commerce.Persistence.Repositories
     {
         private readonly StoreDbContext _storeDbContext;
 
-        public GenericRepositories( StoreDbContext storeDbContext)
+        public GenericRepositories(StoreDbContext storeDbContext)
         {
             this._storeDbContext = storeDbContext;
         }
-        public async Task<IEnumerable<TEntity>> GetAllAsync()
+        public async Task<IEnumerable<TEntity>> GetAllAsync(
+        Expression<Func<TEntity, bool>>? condition = null,
+        List<Expression<Func<TEntity, object>>>? includes = null)
         {
-          return  await _storeDbContext.Set<TEntity>().ToListAsync();
+            IQueryable<TEntity> query = _storeDbContext.Set<TEntity>();
+
+            if (includes is not null)
+            {
+                foreach (var includeExpression in includes)
+                    query = query.Include(includeExpression);
+            }
+
+            if (condition is not null)
+                query = query.Where(condition);
+
+            return await query.ToListAsync();
         }
+
 
         public async Task<TEntity?> GetByIdAsync(TKey id)
         {
@@ -30,7 +45,7 @@ namespace E_Commerce.Persistence.Repositories
 
         public async Task AddAsync(TEntity entity)
         {
-          await  _storeDbContext.Set<TEntity>().AddAsync(entity);
+            await _storeDbContext.Set<TEntity>().AddAsync(entity);
         }
 
         public void Delete(TEntity entity)

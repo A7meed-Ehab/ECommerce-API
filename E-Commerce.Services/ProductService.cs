@@ -7,6 +7,7 @@ using E_Commerce.Shared.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,14 +25,23 @@ namespace E_Commerce.Services
         }
         public async Task<IEnumerable<BrandDTO>> GetAllBrandsAsync()
         {
+
             var Brands = await _unitOfWork.GetRepository<ProductBrand,int>().GetAllAsync();
             return _mapper.Map<IEnumerable<BrandDTO>>(Brands);
         }
 
         public async Task<IEnumerable<ProductDTO>> GetAllProductsAsync()
         {
-            var Products = await _unitOfWork.GetRepository<Product, int>().GetAllAsync();
-            return _mapper.Map<IEnumerable<ProductDTO>>(Products);
+            var Products = await _unitOfWork.GetRepository<Product, int>().GetAllAsync(
+                p=>p.Name.StartsWith("C")
+            , new List<Expression<Func<Product, object>>>
+                {
+                    o => o.ProductBrand,
+                    o => o.ProductType
+                }
+                 );
+            var mappedProducts= _mapper.Map<IEnumerable<ProductDTO>>(Products);
+            return mappedProducts;
         }
 
         public  async Task<IEnumerable<TypeDTO>> GetAllTypesAsync()
