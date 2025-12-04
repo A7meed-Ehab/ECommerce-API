@@ -21,19 +21,23 @@ namespace E_Commerce.Persistence.Repositories
         }
         public async Task<IEnumerable<TEntity>> GetAllAsync(
         Expression<Func<TEntity, bool>>? condition = null,
-        List<Expression<Func<TEntity, object>>>? includes = null)
+        List<Expression<Func<TEntity, object>>>? includes = null,
+        params string[] includeProperties)
         {
-            IQueryable<TEntity> query = _storeDbContext.Set<TEntity>();
+            IQueryable<TEntity> query = _storeDbContext.Set<TEntity>().AsNoTracking();
 
             if (includes is not null)
             {
-                foreach (var includeExpression in includes)
-                    query = query.Include(includeExpression);
+                query = includeProperties.Aggregate(query,
+                  (current, includeProperty) => current.Include(includeProperty));
             }
-
+            //if (includes is not null)
+            //{
+            //    foreach (var includeExpression in includes)
+            //        query = query.Include(includeExpression);
+            //}
             if (condition is not null)
                 query = query.Where(condition);
-
             return await query.ToListAsync();
         }
 

@@ -8,7 +8,7 @@ namespace E_Commerce.Domain.Interfaces
 {
    public interface IDataInitializer
     {
-        Task InitializeAsync();
+        Task InitializeAsync(); 
     }
 
 }
