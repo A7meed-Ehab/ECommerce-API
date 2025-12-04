@@ -10,10 +10,12 @@ namespace E_Commerce.Domain.Interfaces
 {
   public  interface IGenericRepository<TEntity,TKey>where TEntity : BaseEntity<TKey>
     {
-        //Task<IEnumerable<TEntity>> GetAllAsync();
+        Task<IEnumerable<TEntity>> GetAllAsync();
+        Task<IEnumerable<TEntity>> GetAllAsync(ISpecifications<TEntity,TKey> specifications);
         Task<IEnumerable<TEntity>> GetAllAsync(
         Expression<Func<TEntity, bool>>? condition = null,
-        List<Expression<Func<TEntity, object>>>? includes = null);
+        List<Expression<Func<TEntity, object>>>? includes = null,
+        params string[] includeProperties);
         Task<TEntity> GetByIdAsync(TKey id);
         Task AddAsync(TEntity entity);
         void Update(TEntity entity);

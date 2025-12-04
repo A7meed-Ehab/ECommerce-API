@@ -62,5 +62,16 @@ namespace E_Commerce.Persistence.Repositories
             _storeDbContext.Set<TEntity>().Update(entity);
         }
 
+        public Task<IEnumerable<TEntity>> GetAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<TEntity>> GetAllAsync(ISpecifications<TEntity, TKey> specifications)
+        {
+           var query = SpecificationsEvaluator.CreateQuery(_storeDbContext.Set<TEntity>(), specifications);
+            return await query.ToListAsync();
+        }
+
     }
 }

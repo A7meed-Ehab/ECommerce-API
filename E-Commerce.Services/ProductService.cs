@@ -3,6 +3,7 @@ using E_Commerce.Domain.Entities.ProductEntities;
 using E_Commerce.Domain.Entities.ProductModules;
 using E_Commerce.Domain.Interfaces;
 using E_Commerce.Services.Abstraction;
+using E_Commerce.Services.Specifications;
 using E_Commerce.Shared.DTOs;
 using System;
 using System.Collections.Generic;
@@ -32,13 +33,15 @@ namespace E_Commerce.Services
 
         public async Task<IEnumerable<ProductDTO>> GetAllProductsAsync()
         {
+            var spec = new ProductWithBrandAndTypeSpecification();
             var Products = await _unitOfWork.GetRepository<Product, int>().GetAllAsync(
-                p=>p.Name.StartsWith("C")
-            , new List<Expression<Func<Product, object>>>
-                {
-                    o => o.ProductBrand,
-                    o => o.ProductType
-                }
+                spec
+            //    p=>p.Name.StartsWith("C")
+            //, new List<Expression<Func<Product, object>>>
+            //    {
+            //        o => o.ProductBrand,
+            //        o => o.ProductType
+            //    }
                  );
             var mappedProducts= _mapper.Map<IEnumerable<ProductDTO>>(Products);
             return mappedProducts;
